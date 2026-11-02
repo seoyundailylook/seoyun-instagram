@@ -10,6 +10,8 @@ from PIL import Image
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 HANDLE = "@seoyun.dailylook"
+# 공정위 추천·보증 심사지침(2026-06-01 시행): 가상인물이 나오는 동안 인물 가까이에 표시
+BADGE = '<span class="badge">AI 가상인물</span>'
 
 CSS = """
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=Noto+Serif+KR:wght@600;700&display=block');
@@ -29,7 +31,10 @@ body{background:#ccc}
 .cover .top{position:absolute;top:96px;left:120px;right:120px}
 .cover h1{font-size:84px;margin-top:26px}
 .cover .sub{font-size:38px;color:var(--muted);margin-top:14px}
-.cover .photo{position:absolute;left:50%;transform:translateX(-50%);bottom:96px;width:600px;height:750px;object-fit:cover;border-radius:28px}
+.pw{position:absolute;left:50%;transform:translateX(-50%)}
+.pw img{width:100%;height:100%;object-fit:cover;border-radius:28px;display:block}
+.badge{position:absolute;top:22px;left:22px;background:rgba(42,37,33,.80);color:#fff;font-size:32px;font-weight:500;line-height:1.2;padding:8px 20px;border-radius:999px}
+.cover .pw{bottom:96px;width:600px;height:750px}
 /* text slide */
 .text .wrap{position:absolute;top:150px;bottom:170px;left:120px;right:120px;display:flex;flex-direction:column;justify-content:center}
 .text p{font-size:44px}
@@ -41,8 +46,8 @@ ul.list li{padding:26px 0;border-top:2px solid var(--line);display:flex;gap:28px
 ul.list li:last-child{border-bottom:2px solid var(--line)}
 ul.list .k{color:var(--accent);font-weight:700;min-width:56px}
 /* photo + text slide */
-.item .photo{position:absolute;top:130px;left:50%;transform:translateX(-50%);width:720px;height:720px;object-fit:cover;border-radius:28px}
-.item .photo.tall{width:420px;height:525px;top:120px}
+.item .pw{top:130px;width:720px;height:720px}
+.item .pw.tall{width:420px;height:525px;top:120px}
 .item .wrap{position:absolute;top:900px;left:120px;right:120px}
 .item .wrap.lower{top:690px}
 .item h2{font-size:62px;margin:10px 0 18px}
@@ -82,7 +87,7 @@ def slide(s, i, n, build):
         img = crop(s["image"], s.get("crop"), os.path.join(build, f"img{i}.jpg"), 800)
         inner = (f'<div class="top"><span class="pill">{esc(s["pill"])}</span>'
                  f'<h1 class="serif">{esc(s["title"])}</h1><div class="sub">{esc(s["sub"])}</div></div>'
-                 f'<img class="photo" src="{img}">')
+                 f'<div class="pw"><img src="{img}">{BADGE}</div>')
     elif kind == "text":
         body = "".join(f"<p>{esc(p)}</p>" for p in s.get("paras", []))
         if s.get("list"):
@@ -101,7 +106,7 @@ def slide(s, i, n, build):
                 f'<li><span class="k">{esc(k)}</span><span>{esc(v)}</span></li>' for k, v in s["list"]) + "</ul>"
         if s.get("note"):
             body += f'<p class="note" style="margin-top:22px">{esc(s["note"])}</p>'
-        inner = (f'<img class="photo{" tall" if tall else ""}" src="{img}">'
+        inner = (f'<div class="pw{" tall" if tall else ""}"><img src="{img}">{BADGE}</div>'
                  f'<div class="wrap{" lower" if tall else ""}"><div class="label">{esc(s["label"])}</div>'
                  f'<h2 class="serif">{esc(s["title"])}</h2>{body}</div>')
     elif kind == "recap":
